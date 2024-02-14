@@ -1,9 +1,7 @@
-#!/usr/env/bin bash
-#
 # This runs in the "hooks.pre" block of .goreleaser.yml.
 # We do this because it enables us to dynamically set the $WASMVM_VERSION based
 # on go.mod.
-# 
+#
 # It's intended to be used with:
 # ```bash
 # make release-snapshot

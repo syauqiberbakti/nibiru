@@ -29,7 +29,7 @@ func DefaultGenesisFromTime(startTime time.Time) *GenesisState {
 		{
 			Identifier:              DayEpochID,
 			StartTime:               startTime,
-			Duration:                24 * time.Hour,
+			Duration:                30 * time.Second,
 			CurrentEpoch:            0,
 			CurrentEpochStartHeight: 0,
 			CurrentEpochStartTime:   startTime,

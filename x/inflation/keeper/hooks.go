@@ -43,6 +43,15 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 	period := k.CurrentPeriod.Peek(ctx)
 	epochsPerPeriod := k.GetEpochsPerPeriod(ctx)
 
+	k.Logger(ctx).Error(
+		"epoch mint provision",
+		"epochNumber", epochNumber,
+		"period", period,
+		"epochsPerPeriod", epochsPerPeriod,
+		"skippedEpochs", k.NumSkippedEpochs.Peek(ctx),
+		"params", params,
+	)
+
 	epochMintProvision := types.CalculateEpochMintProvision(
 		params,
 		period,
