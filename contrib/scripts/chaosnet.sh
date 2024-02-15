@@ -45,33 +45,31 @@ add_genesis_param() {
 }
 
 add_genesis_perp_markets_with_coingecko_prices() {
-  local temp_json_fname="tmp_market_prices.json"
-  curl -X 'GET' \
-    'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin%2Cethereum&vs_currencies=usd' \
-    -H 'accept: application/json' \
-    >$temp_json_fname
+  # local temp_json_fname="tmp_market_prices.json"
+  # curl -X 'GET' \
+  #   'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin%2Cethereum&vs_currencies=usd' \
+  #   -H 'accept: application/json' \
+  #   >$temp_json_fname
 
   local M=1000000
-
   local num_users=300000
   local faucet_nusd_amt=100
   local reserve_amt=$(($num_users * $faucet_nusd_amt * $M))
 
-  price_btc=$(cat $temp_json_fname | jq -r '.bitcoin.usd')
-  price_btc=${price_btc%.*}
-  if [ -z "$price_btc" ]; then
-    return 1
-  fi
+  # price_btc=$(cat $temp_json_fname | jq -r '.bitcoin.usd')
+  # price_btc=${price_btc%.*}
+  # if [ -z "$price_btc" ]; then
+  #   return 1
+  # fi
 
-  nibid genesis add-genesis-perp-market --pair=ubtc:unusd --sqrt-depth=$reserve_amt --price-multiplier=$price_btc --oracle-pair=ubtc:uusd
+  # price_eth=$(cat $temp_json_fname | jq -r '.ethereum.usd')
+  # price_eth=${price_eth%.*}
+  # if [ -z "$price_eth" ]; then
+  #   return 1
+  # fi
 
-  price_eth=$(cat $temp_json_fname | jq -r '.ethereum.usd')
-  price_eth=${price_eth%.*}
-  if [ -z "$price_eth" ]; then
-    return 1
-  fi
-
-  nibid genesis add-genesis-perp-market --pair=ueth:unusd --sqrt-depth=$reserve_amt --price-multiplier=$price_eth --oracle-pair=ueth:uusd
+  nibid genesis add-genesis-perp-market --pair=ubtc:unusd --sqrt-depth=$reserve_amt --price-multiplier="50000" --oracle-pair=ubtc:uusd
+  nibid genesis add-genesis-perp-market --pair=ueth:unusd --sqrt-depth=$reserve_amt --price-multiplier="3000" --oracle-pair=ueth:uusd
 }
 
 add_genesis_perp_markets_with_coingecko_prices
@@ -88,6 +86,10 @@ add_genesis_param '.app_state.oracle.params.twap_lookback_window = "900s"'
 add_genesis_param '.app_state.oracle.params.vote_period = "10"'
 add_genesis_param '.app_state.oracle.params.min_voters = "1"'
 nibid genesis add-genesis-pricefeeder-delegation --validator $(nibid keys show validator -a --bech val) --pricefeeder nibi19n0clnacpjv0d3t8evvzp3fptlup9srjdqunzs
+
+# x/epochs
+# add custom day epoch for inflation testing
+add_genesis_param '.app_state.epochs.epochs = [{"identifier": "day","start_time": "0001-01-01T00:00:00Z","duration": "15s","current_epoch": "0","current_epoch_start_time": "0001-01-01T00:00:00Z","epoch_counting_started": false,"current_epoch_start_height": "0"}]'
 
 # ------------------------------------------------------------------------
 # genesis accounts and balances

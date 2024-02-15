@@ -1,0 +1,68 @@
+name: simplenet
+
+services:
+  nibiru-0:
+    build:
+      context: ../.. # nibiru project folder
+      dockerfile: ./contrib/docker/chaosnet.Dockerfile # relative to context directory (i.e. nibiru project folder)
+      args:
+        MNEMONIC: guard cream sadness conduct invite crumble clock pudding hole grit liar hotel maid produce squeeze return argue turtle know drive eight casino maze host
+        CHAIN_ID: nibiru-localnet-0
+        RPC_PORT: 26657
+        GRPC_PORT: 9090
+        LCD_PORT: 1317
+    ports:
+      - 26657:26657
+      - 1317:1317
+      - 9090:9090
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:26657"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    volumes:
+      - nibid-data-0:/root/.nibid/data:rw
+
+  pricefeeder-0:
+    image: ghcr.io/nibiruchain/pricefeeder:latest
+    restart: always
+    environment:
+      CHAIN_ID: nibiru-localnet-0
+      GRPC_ENDPOINT: nibiru-0:9090
+      WEBSOCKET_ENDPOINT: ws://nibiru-0:26657/websocket
+      FEEDER_MNEMONIC: empower dice proud brick treat reward pull jeans right rubber infant hamster pet foster among crush quick report rival bracket easily mouse topple absorb
+      EXCHANGE_SYMBOLS_MAP: '{ "bitfinex": { "ubtc:uusd": "tBTCUSD", "ueth:uusd": "tETHUSD", "uusdt:uusd": "tUSTUSD" }, "binance": { "ubtc:uusd": "BTCUSD", "ueth:uusd": "ETHUSD", "uusdt:uusd": "USDTUSD", "uusdc:uusd": "USDCUSD", "uatom:uusd": "ATOMUSD", "ubnb:uusd": "BNBUSD", "uavax:uusd": "AVAXUSD", "usol:uusd": "SOLUSD", "uada:uusd": "ADAUSD", "ubtc:unusd": "BTCUSD", "ueth:unusd": "ETHUSD", "uusdt:unusd": "USDTUSD", "uusdc:unusd": "USDCUSD", "uatom:unusd": "ATOMUSD", "ubnb:unusd": "BNBUSD", "uavax:unusd": "AVAXUSD", "usol:unusd": "SOLUSD", "uada:unusd": "ADAUSD" } }'
+      VALIDATOR_ADDRESS: nibivaloper1zaavvzxez0elundtn32qnk9lkm8kmcszuwx9jz
+    depends_on:
+      nibiru-0:
+        condition: service_healthy
+
+  heartmonitor-db:
+    image: postgres:14
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: heart-monitor
+    ports:
+      - 5433:5432
+
+  heartmonitor:
+    image: ghcr.io/nibiruchain/go-heartmonitor:latest
+    restart: always
+    command: --clean
+    volumes:
+      - nibid-data-0:/heartmonitor/.nibid/data:ro
+    environment:
+      - DATABASE_URI=postgresql://postgres:postgres@heartmonitor-db:5432/heart-monitor?sslmode=disable
+      - TENDERMINT_RPC_ENDPOINT=http://nibiru-0:26657
+      - GRPC_ENDPOINT=nibiru-0:9090
+      - GRPC_INSECURE=true
+      - NO_PARTITIONS=true
+      - CHAIN_DB_PATH=/heartmonitor/.nibid/data
+    depends_on:
+      heartmonitor-db:
+        condition: service_started
+
+volumes:
+  nibid-data-0:

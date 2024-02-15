@@ -5,7 +5,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	epochstypes "github.com/NibiruChain/nibiru/x/epochs/types"
 	inflationtypes "github.com/NibiruChain/nibiru/x/inflation/types"
 )
 
@@ -49,29 +48,17 @@ func (k sudoExtension) ToggleInflation(
 	ctx sdk.Context, enabled bool, sender sdk.AccAddress,
 ) (err error) {
 	if err = k.sudoKeeper.CheckPermissions(sender, ctx); err != nil {
-		return
+		return err
 	}
 
 	params, err := k.Params.Get(ctx)
 	if err != nil {
-		return
+		return err
 	}
 
 	params.InflationEnabled = enabled
-	if k.NumSkippedEpochs.Peek(ctx) == 0 {
-		// update skipped epochs since this means that inflation could have
-		// added to the chain after launch
-
-		epochInfo, err := k.epochsKeeper.GetEpochInfo(ctx, epochstypes.DayEpochID)
-		if err != nil {
-			return err
-		}
-
-		k.NumSkippedEpochs.Set(ctx, epochInfo.CurrentEpoch)
-	}
-
 	k.Params.Set(ctx, params)
-	return
+	return nil
 }
 
 // MergeInflationParams: Takes the given Inflation params and merges them into the

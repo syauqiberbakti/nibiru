@@ -223,7 +223,7 @@ services:
     environment:
       - DATABASE_URI=postgresql://postgres:postgres@heartmonitor-db:5432/heart-monitor?sslmode=disable
       - TENDERMINT_RPC_ENDPOINT=http://nibiru-0:26657
-      - GRPC_ENDPOINT=tcp://nibiru-0:9090
+      - GRPC_ENDPOINT=nibiru-0:9090
       - GRPC_INSECURE=true
       - NO_PARTITIONS=true
       - CHAIN_DB_PATH=/heartmonitor/.nibid/data
@@ -238,7 +238,7 @@ services:
     environment:
       - DATABASE_URI=postgresql://postgres:postgres@heartmonitor-db:5432/heart-monitor?sslmode=disable
       - TENDERMINT_RPC_ENDPOINT=http://nibiru-0:26657
-      - GRPC_ENDPOINT=tcp://nibiru-0:9090
+      - GRPC_ENDPOINT=nibiru-0:9090
       - GRPC_INSECURE=true
       - NO_PARTITIONS=true
       - LIQUIDATOR_MNEMONIC=record damage person caution truly riot resource luxury rude guide mushroom athlete fantasy dentist friend mule depth salmon photo unfold exclude coyote idea evoke
